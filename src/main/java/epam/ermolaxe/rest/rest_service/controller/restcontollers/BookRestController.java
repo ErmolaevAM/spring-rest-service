@@ -35,24 +35,34 @@ public class BookRestController {
     }
 
     @RequestMapping(value = "/book", method = RequestMethod.POST)
-    public ResponseEntity<?> saveBook1(@RequestBody Book book) {
+    public ResponseEntity<?> saveBook(@RequestBody Book book) {
         Book bookById = (Book) bookService.getById(book.getId());
         if (bookById != null) {
-            bookService.save(book);
-            return new ResponseEntity<>(String.format("book with title = %s updated", book.getTitle()), HttpStatus.OK);
+            return new ResponseEntity<>(String.format("book with title = %s is already exist.", book.getTitle()), HttpStatus.OK);
         } else {
             bookService.save(book);
             return new ResponseEntity<>(String.format("book with title = %s saved", book.getTitle()), HttpStatus.OK);
         }
     }
 
-    @RequestMapping(value = "/book/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/book", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateBook(@RequestBody Book book) {
+        Book bookById = (Book) bookService.getById(book.getId());
+        if (bookById != null) {
+            bookService.save(book);
+            return new ResponseEntity<>(String.format("book with title = %s updated.", book.getTitle()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(String.format("book with title = %s is not found.", book.getTitle()), HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/book/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteBook(@PathVariable(value = "id") Long id) {
         Book bookById = (Book) bookService.getById(id);
         if (bookById == null) {
-            return new ResponseEntity<>(String.format("cannot delete book with id = %s. is not existed", id), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("cannot delete book with id = %s. is not existed.", id), HttpStatus.NOT_FOUND);
         }
         bookService.delete(bookById);
-        return new ResponseEntity<>(String.format("book with id = %s deleted", id), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("book with id = %s deleted.", id), HttpStatus.OK);
     }
 }

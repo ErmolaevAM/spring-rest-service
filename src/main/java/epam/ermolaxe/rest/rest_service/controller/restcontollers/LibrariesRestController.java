@@ -38,21 +38,31 @@ public class LibrariesRestController {
     public ResponseEntity<?> saveLibrary(@RequestBody Libraries library) {
         Libraries lib = (Libraries) librariesService.getById(library.getId());
         if (lib != null) {
-            librariesService.save(library);
-            return new ResponseEntity<>(String.format("library with title = %s updated", library.getTitle()), HttpStatus.OK);
+            return new ResponseEntity<>(String.format("library with title = %s is already exist.", library.getTitle()), HttpStatus.OK);
         } else {
             librariesService.save(library);
-            return new ResponseEntity<>(String.format("library with title = %s saved", library.getTitle()), HttpStatus.OK);
+            return new ResponseEntity<>(String.format("library with title = %s saved.", library.getTitle()), HttpStatus.OK);
         }
     }
 
-    @RequestMapping(value = "/library/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/library", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateLibrary(@RequestBody Libraries library) {
+        Libraries lib = (Libraries) librariesService.getById(library.getId());
+        if (lib != null) {
+            librariesService.save(library);
+            return new ResponseEntity<>(String.format("library with title = %s updated.", library.getTitle()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(String.format("library with title = %s is not found.", library.getTitle()), HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/library/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteLibrary(@PathVariable(value = "id") Long id) {
         Libraries lib = (Libraries) librariesService.getById(id);
         if (lib == null) {
-            return new ResponseEntity<>(String.format("cannot delete library with id = %s. is not existed", id), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("cannot delete library with id = %s. is not existed.", id), HttpStatus.NOT_FOUND);
         }
         librariesService.delete(lib);
-        return new ResponseEntity<>(String.format("library with id = %s deleted", id), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("library with id = %s deleted.", id), HttpStatus.OK);
     }
 }

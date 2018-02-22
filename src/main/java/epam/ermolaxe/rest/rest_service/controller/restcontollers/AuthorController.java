@@ -36,18 +36,34 @@ public class AuthorController {
 
     @RequestMapping(value = "/author", method = RequestMethod.POST)
     public ResponseEntity<?> saveAuthor(@RequestBody Author author) {
-        authorService.save(author);
-        return new ResponseEntity<>(String.format("author with name = %s saved", author.getName()), HttpStatus.OK);
+        Author authodById = (Author) authorService.getById(author.getId());
+        if (authodById != null) {
+            return new ResponseEntity<>(String.format("author with name = %s is already exist.", author.getName()), HttpStatus.OK);
+        } else {
+            authorService.save(author);
+            return new ResponseEntity<>(String.format("author with name = %s saved.", author.getName()), HttpStatus.OK);
+        }
     }
 
-    @RequestMapping(value = "/author/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/author", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateAuthor(@RequestBody Author author) {
+        Author authodById = (Author) authorService.getById(author.getId());
+        if (authodById != null) {
+            authorService.save(author);
+            return new ResponseEntity<>(String.format("author with name = %s updated.", author.getName()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(String.format("author with name = %s is not found.", author.getName()), HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/author/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteLibrary(@PathVariable(value = "id")Long id) {
         Author authorById = (Author) authorService.getById(id);
         if (authorById == null) {
             return new ResponseEntity<>(String.format("cannot delete author with id = %s. is not found.", id), HttpStatus.NOT_FOUND);
         }
         authorService.delete(authorById);
-        return new ResponseEntity<>(String.format("author with id = %s deleted", id), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("author with id = %s deleted.", id), HttpStatus.OK);
     }
 
 }
