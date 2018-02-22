@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/books")
+@RequestMapping("/rest")
 public class BookRestController {
 
     @Autowired
     private BookService bookService;
 
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    @RequestMapping(value = "/book", method = RequestMethod.GET)
     public ResponseEntity<List> getAllBooks() {
         List books = bookService.getAll();
         if (books.isEmpty()) {
@@ -25,16 +25,16 @@ public class BookRestController {
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getBookById(@PathVariable(value = "id") String id) {
-        Book book = (Book) bookService.getById(Long.valueOf(id));
+    @RequestMapping(value = "/book/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getBookById(@PathVariable(value = "id") Long id) {
+        Book book = (Book) bookService.getById(id);
         if (book == null) {
             return new ResponseEntity<>(book, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<Book>(book, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/book", method = RequestMethod.POST)
     public ResponseEntity<?> saveBook1(@RequestBody Book book) {
         Book bookById = (Book) bookService.getById(book.getId());
         if (bookById != null) {
@@ -46,13 +46,13 @@ public class BookRestController {
         }
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public ResponseEntity<?> deleteBook(@RequestBody Book book) {
-        Book bookById = (Book) bookService.getById(book.getId());
-        if (bookById != null) {
-            bookService.delete(book);
-            return new ResponseEntity<>(String.format("book with title = %s deleted", book.getTitle()), HttpStatus.OK);
+    @RequestMapping(value = "/book/{id}", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteBook(@PathVariable(value = "id") Long id) {
+        Book bookById = (Book) bookService.getById(id);
+        if (bookById == null) {
+            return new ResponseEntity<>(String.format("cannot delete book with id = %s. is not existed", id), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(String.format("cannot delete book with title = %s. is not existed", book.getTitle()), HttpStatus.NOT_FOUND);
+        bookService.delete(bookById);
+        return new ResponseEntity<>(String.format("book with id = %s deleted", id), HttpStatus.OK);
     }
 }

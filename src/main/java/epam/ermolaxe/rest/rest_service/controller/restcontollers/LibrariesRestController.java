@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/libraries")
+@RequestMapping("/rest")
 public class LibrariesRestController {
 
     @Autowired
     private LibrariesService librariesService;
 
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    @RequestMapping(value = "/library", method = RequestMethod.GET)
     public ResponseEntity<List> getAllLibraries() {
         List libraries = librariesService.getAll();
         if (libraries.isEmpty()) {
@@ -25,16 +25,16 @@ public class LibrariesRestController {
         return new ResponseEntity<>(libraries, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getLibraryById(@PathVariable(value = "id") String id) {
-        Libraries library = (Libraries) librariesService.getById(Long.valueOf(id));
+    @RequestMapping(value = "/library/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getLibraryById(@PathVariable(value = "id") Long id) {
+        Libraries library = (Libraries) librariesService.getById(id);
         if (library == null) {
             return new ResponseEntity<>(String.format("library with id = %s is not found.", id), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(library, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/library", method = RequestMethod.POST)
     public ResponseEntity<?> saveLibrary(@RequestBody Libraries library) {
         Libraries lib = (Libraries) librariesService.getById(library.getId());
         if (lib != null) {
@@ -46,13 +46,13 @@ public class LibrariesRestController {
         }
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public ResponseEntity<?> deleteLibrary(@RequestBody Libraries library) {
-        Libraries lib = (Libraries) librariesService.getById(library.getId());
-        if (lib != null) {
-            librariesService.delete(library);
-            return new ResponseEntity<>(String.format("library with title = %s deleted", library.getTitle()), HttpStatus.OK);
+    @RequestMapping(value = "/library/{id}", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteLibrary(@PathVariable(value = "id") Long id) {
+        Libraries lib = (Libraries) librariesService.getById(id);
+        if (lib == null) {
+            return new ResponseEntity<>(String.format("cannot delete library with id = %s. is not existed", id), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(String.format("cannot delete library with title = %s. is not existed", library.getTitle()), HttpStatus.NOT_FOUND);
+        librariesService.delete(lib);
+        return new ResponseEntity<>(String.format("library with id = %s deleted", id), HttpStatus.OK);
     }
 }
